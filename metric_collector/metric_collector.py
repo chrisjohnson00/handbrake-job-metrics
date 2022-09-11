@@ -80,10 +80,14 @@ class MetricCollector:
         pending = Gauge('handbrake_job_pending_count', 'The count of pending Handbrake Encoding jobs')
         failed = Gauge('handbrake_job_failed_count', 'The count of failed Handbrake Encoding jobs')
 
-        total_count = self.get_total_jobs()
-        running_count = self.get_running_jobs()
-        pending_count = self.get_pending_jobs()
-        failed_count = self.get_failed_jobs()
+        try:
+            total_count = self.get_total_jobs()
+            running_count = self.get_running_jobs()
+            pending_count = self.get_pending_jobs()
+            failed_count = self.get_failed_jobs()
+        except Exception as e:
+            self.logger.error(e)
+            raise e
 
         total.add_metric(value=total_count, labels=[])
         running.add_metric(value=running_count, labels=[])
