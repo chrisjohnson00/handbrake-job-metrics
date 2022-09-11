@@ -4,7 +4,7 @@ from prometheus_client.core import GaugeMetricFamily as Gauge
 
 
 class MetricCollector:
-    def __init__(self):
+    def __init__(self, logger):
         if os.environ.get('USE_K8S_CONFIG_FILE'):
             config.load_kube_config()
         else:
@@ -15,6 +15,7 @@ class MetricCollector:
         self.job_label_selector = "app=handbrake-job"
         self.job_list = None
         self.pod_list = None
+        self.logger = logger
 
     def get_total_jobs(self):
         job_list = self.get_all_jobs()
@@ -79,10 +80,20 @@ class MetricCollector:
         pending = Gauge('handbrake_job_pending_count', 'The count of pending Handbrake Encoding jobs')
         failed = Gauge('handbrake_job_failed_count', 'The count of failed Handbrake Encoding jobs')
 
-        total.add_metric(value=self.get_total_jobs(), labels=[])
-        running.add_metric(value=self.get_running_jobs(), labels=[])
-        pending.add_metric(value=self.get_pending_jobs(), labels=[])
-        failed.add_metric(value=self.get_failed_jobs(), labels=[])
+        total_count = self.get_total_jobs()
+        running_count = self.get_running_jobs()
+        pending_count = self.get_pending_jobs()
+        failed_count = self.get_failed_jobs()
+
+        total.add_metric(value=total_count, labels=[])
+        running.add_metric(value=running_count, labels=[])
+        pending.add_metric(value=pending_count, labels=[])
+        failed.add_metric(value=failed_count, labels=[])
+
+        self.logger.info(f'Total: {total_count}')
+        self.logger.info(f'Running: {running_count}')
+        self.logger.info(f'Pending: {pending_count}')
+        self.logger.info(f'Failed: {failed_count}')
 
         yield total
         yield running

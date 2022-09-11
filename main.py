@@ -1,14 +1,8 @@
-import pygogo as gogo
 from metric_collector.metric_collector import MetricCollector
 from flask import Flask
 from prometheus_client import core, exposition
 
 application = Flask(__name__)
-
-# logging setup
-kwargs = {}
-formatter = gogo.formatters.structured_formatter
-logger = gogo.Gogo('struct', low_formatter=formatter).get_logger(**kwargs)
 
 
 @application.route('/')
@@ -19,7 +13,7 @@ def hello():
 @application.route('/metrics')
 def metrics():
     registry = core.CollectorRegistry(auto_describe=False)
-    registry.register(MetricCollector())
+    registry.register(MetricCollector(logger=application.logger))
     return exposition.generate_latest(registry)
 
 
