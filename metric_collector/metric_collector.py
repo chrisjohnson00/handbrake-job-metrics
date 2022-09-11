@@ -82,6 +82,7 @@ class MetricCollector:
         return count
 
     def collect(self):
+        self.logger.info("Starting collection")
         total = Gauge('handbrake_job_total_count', 'The total count of Handbrake Encoding jobs')
         running = Gauge('handbrake_job_running_count', 'The count of running Handbrake Encoding jobs')
         pending = Gauge('handbrake_job_pending_count', 'The count of pending Handbrake Encoding jobs')
@@ -96,6 +97,7 @@ class MetricCollector:
             self.logger.error(e)
             raise e
 
+        self.logger.info("Adding metrics")
         total.add_metric(value=total_count, labels=[])
         running.add_metric(value=running_count, labels=[])
         pending.add_metric(value=pending_count, labels=[])
