@@ -1,6 +1,7 @@
 from kubernetes import client, config
 import os
 from prometheus_client.core import GaugeMetricFamily as Gauge
+from datetime import datetime, timedelta
 
 
 class MetricCollector:
@@ -15,6 +16,8 @@ class MetricCollector:
         self.job_label_selector = "app=handbrake-job"
         self.job_list = None
         self.pod_list = None
+        self.cache_time = 60
+        self.last_request_time = {'jobs': None, 'pods': None}
         self.logger = logger
 
     def get_total_jobs(self):
@@ -22,15 +25,19 @@ class MetricCollector:
         return len(job_list.items)
 
     def get_all_jobs(self):
-        if not self.job_list:
+        if self.job_list is None or (self.last_request_time['jobs'] is not None and self.last_request_time['jobs'] < (
+                datetime.now() - timedelta(seconds=self.cache_time))):
             self.job_list = self.batch_v1_client.list_namespaced_job(namespace=self.namespace,
                                                                      label_selector=self.job_label_selector)
+        self.last_request_time['jobs'] = datetime.now()
         return self.job_list
 
     def get_all_job_pods(self):
-        if not self.pod_list:
+        if self.pod_list is None or (self.last_request_time['pods'] is not None and self.last_request_time['pods'] < (
+                datetime.now() - timedelta(seconds=self.cache_time))):
             self.pod_list = self.core_v1_client.list_namespaced_pod(namespace=self.namespace,
                                                                     label_selector=self.job_label_selector)
+        self.last_request_time['pods'] = datetime.now()
         return self.pod_list
 
     def get_completed_jobs(self):
