@@ -87,12 +87,14 @@ class MetricCollector:
         running = Gauge('handbrake_job_running_count', 'The count of running Handbrake Encoding jobs')
         pending = Gauge('handbrake_job_pending_count', 'The count of pending Handbrake Encoding jobs')
         failed = Gauge('handbrake_job_failed_count', 'The count of failed Handbrake Encoding jobs')
+        completed = Gauge('handbrake_job_completed_count', 'The count of completed Handbrake Encoding jobs')
 
         try:
             total_count = self.get_total_jobs()
             running_count = self.get_running_jobs()
             pending_count = self.get_pending_jobs()
             failed_count = self.get_failed_jobs()
+            completed_count = self.get_completed_jobs()
         except Exception as e:
             self.logger.error(e)
             raise e
@@ -102,11 +104,13 @@ class MetricCollector:
         running.add_metric(value=running_count, labels=[])
         pending.add_metric(value=pending_count, labels=[])
         failed.add_metric(value=failed_count, labels=[])
+        completed.add_metric(value=completed_count, labels=[])
 
         self.logger.info(f'Total: {total_count}')
         self.logger.info(f'Running: {running_count}')
         self.logger.info(f'Pending: {pending_count}')
         self.logger.info(f'Failed: {failed_count}')
+        self.logger.info(f'Completed: {completed_count}')
 
         yield total
         yield running
