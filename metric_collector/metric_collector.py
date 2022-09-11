@@ -1,5 +1,6 @@
 from kubernetes import client, config
 import os
+from prometheus_client.core import GaugeMetricFamily as Gauge
 
 
 class MetricCollector:
@@ -71,3 +72,19 @@ class MetricCollector:
             if phase == "Pending":
                 count += 1
         return count
+
+    def collect(self):
+        total = Gauge('handbrake_job_total_count', 'The total count of Handbrake Encoding jobs')
+        running = Gauge('handbrake_job_running_count', 'The count of running Handbrake Encoding jobs')
+        pending = Gauge('handbrake_job_pending_count', 'The count of pending Handbrake Encoding jobs')
+        failed = Gauge('handbrake_job_failed_count', 'The count of failed Handbrake Encoding jobs')
+
+        total.add_metric(value=self.get_total_jobs(), labels=[])
+        running.add_metric(value=self.get_running_jobs(), labels=[])
+        pending.add_metric(value=self.get_pending_jobs(), labels=[])
+        failed.add_metric(value=self.get_failed_jobs(), labels=[])
+
+        yield total
+        yield running
+        yield pending
+        yield failed
