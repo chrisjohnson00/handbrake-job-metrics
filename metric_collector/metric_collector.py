@@ -116,3 +116,4 @@ class MetricCollector:
         yield running
         yield pending
         yield failed
+        yield completed
