@@ -10,7 +10,7 @@ itsdangerous==2.1.2
 Jinja2==3.1.2
 kubernetes==24.2.0
 MarkupSafe==2.1.1
-oauthlib==3.2.1
+oauthlib==3.2.2
 prometheus-client==0.14.1
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
