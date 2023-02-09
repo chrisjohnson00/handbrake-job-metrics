@@ -1,4 +1,4 @@
-FROM python:3.10.7-slim
+FROM python:3.11.2-slim
 
 WORKDIR /usr/src/app
 EXPOSE 5000
